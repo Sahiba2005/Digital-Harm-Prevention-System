@@ -1,0 +1,11 @@
+backend/DataSet_Misinfo_TRUE.csv
+backend/DataSet_Misinfo_FAKE.csv
+backend/EXTRA_RussianPropagandaSubset.csv
+backend/model.json
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pkl
+.DS_Store
+backend/DataSet_Misinfo_FAKE.csv
+backend/DataSet_Misinfo_TRUE.csv

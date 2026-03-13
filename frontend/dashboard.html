@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>DHPS Security Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script defer src="js/riskEngine.js"></script>
+  <script defer src="js/behaviorMonitor.js"></script>
+  <script defer src="js/fakeNewsAI.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="dash-nav">
+  <a href="index.html" class="dash-nav-logo">&#x2190; DHPS</a>
+  <span class="dash-nav-title">SECURITY OPERATIONS CENTER</span>
+  <div class="dash-nav-right">
+    <span class="status-dot"></span>
+    LIVE
+  </div>
+</nav>
+
+<div class="dash-page">
+
+  <h1 class="dashboard-title">DHPS // Security Operations Center</h1>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="card">
+      <h3>Total Threats</h3>
+      <p id="threats">12</p>
+    </div>
+    <div class="card">
+      <h3>Fake News Alerts</h3>
+      <p>5</p>
+    </div>
+    <div class="card">
+      <h3>Suspicious Transactions</h3>
+      <p>3</p>
+    </div>
+    <div class="card">
+      <h3>Data Exposure Attempts</h3>
+      <p>4</p>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="dash-grid">
+
+    <!-- RISK ENGINE -->
+    <div class="dash-panel risk-engine">
+      <h2>Risk Intelligence Engine</h2>
+      <p id="riskScore">Risk Score: 45</p>
+      <div class="risk-bar">
+        <div id="riskFill"></div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="dash-panel actions">
+      <h2>Security Action Simulator</h2>
+      <div class="action-grid">
+        <button onclick="openMoneyForm()">&#x1F4B8; Send Money</button>
+        <button onclick="openSensitiveForm()">&#x1F4AC; Share Sensitive Info</button>
+        <button onclick="openDeleteForm()">&#x1F5D1; Delete Secure File</button>
+        <button onclick="openFolderForm()">&#x1F4C1; Access Private Folder</button>
+        <button onclick="openLinkForm()" style="grid-column: 1 / -1;">&#x1F517; Open Suspicious Link</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAKE NEWS -->
+  <div class="dash-panel-full fake-news-card">
+    <h2>&#x1F9E0; Fake News Detection</h2>
+    <textarea id="newsInput" placeholder="Paste a news headline or article here..."></textarea>
+    <button onclick="checkNews()" style="clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); padding: 12px 28px;">Analyze News</button>
+    <p id="newsResult"></p>
+    <div class="trust-bar"><div id="trustFill"></div></div>
+  </div>
+
+  <!-- THREAT LOG -->
+  <div class="dash-panel-full log" style="margin-top: 1px;">
+    <h2>Threat Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Action</th>
+          <th>Risk Score</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody id="logTable"></tbody>
+    </table>
+  </div>
+
+</div><!-- /dash-page -->
+
+
+<!-- MONEY FORM -->
+<div id="moneyForm" class="modal">
+  <div class="modal-content">
+    <h3>Money Transfer</h3>
+    <input id="recipient" placeholder="Recipient Name">
+    <input id="amount" type="number" placeholder="Amount (INR)" oninput="checkAmountWarning(this.value)">
+    <div id="amountWarningInline" style="display:none; margin: -8px 0 12px; padding: 10px 14px; background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.4); font-family: var(--font-mono); font-size: 11px; color: var(--orange); letter-spacing: 1px;">
+      &#x26A0; High-value transaction &mdash; additional verification may apply.
+    </div>
+    <div class="modal-buttons">
+      <button onclick="submitMoneyWithCheck()">Submit Transaction</button>
+      <button class="btn-close" onclick="closeForms()">Close</button>
+    </div>
+    <p id="moneyResult"></p>
+  </div>
+</div>
+
+<!-- HIGH VALUE WARNING POPUP -->
+<div id="highValueWarning" class="modal" style="z-index: 2000;">
+  <div class="modal-content" style="border-color: rgba(255,184,0,0.6); box-shadow: 0 0 40px rgba(255,184,0,0.2), inset 0 0 40px rgba(0,0,0,0.5);">
+    <div style="position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, var(--orange), transparent);"></div>
+    <div style="text-align:center; margin-bottom: 20px;">
+      <div style="font-size: 40px; margin-bottom: 12px;">&#x26A0;</div>
+      <h3 style="color: var(--orange); font-size: 14px; letter-spacing: 3px;">High-Value Transaction</h3>
+    </div>
+    <div style="background: rgba(255,184,0,0.06); border: 1px solid rgba(255,184,0,0.2); padding: 16px; margin-bottom: 20px;">
+      <p style="font-family: var(--font-mono); font-size: 12px; color: var(--text); letter-spacing: 1px; line-height: 1.7; margin: 0;">
+        Transaction amount exceeds <span style="color:var(--orange); font-weight:bold;">&#x20B9;10,000</span>.<br>
+        This triggers enhanced fraud screening.<br><br>
+        <span style="color: var(--text-dim);">Recipient:</span> <span id="warnRecipient" style="color:var(--cyan);"></span><br>
+        <span style="color: var(--text-dim);">Amount:</span> <span id="warnAmount" style="color:var(--orange);"></span>
+      </p>
+    </div>
+    <p style="font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:1px; text-align:center; margin-bottom:20px;">
+      Do you want to proceed with this transaction?
+    </p>
+    <div class="modal-buttons">
+      <button onclick="confirmHighValueTransaction()" style="background: rgba(255,184,0,0.15); border-color: rgba(255,184,0,0.6); color: var(--orange);">
+        &#x2714; Proceed Anyway
+      </button>
+      <button class="btn-close" onclick="cancelHighValueTransaction()">&#x2718; Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function checkAmountWarning(val) {
+    var warn = document.getElementById("amountWarningInline");
+    warn.style.display = (parseFloat(val) > 10000) ? "block" : "none";
+  }
+
+  function submitMoneyWithCheck() {
+    var amount = parseFloat(document.getElementById("amount").value);
+    var recipient = document.getElementById("recipient").value.trim();
+
+    if (!recipient || isNaN(amount) || amount <= 0) {
+      document.getElementById("moneyResult").style.color = "var(--orange)";
+      document.getElementById("moneyResult").textContent = "\u26A0 Please fill in all fields.";
+      return;
+    }
+
+    if (amount > 10000) {
+      document.getElementById("warnRecipient").textContent = recipient || "\u2014";
+      document.getElementById("warnAmount").textContent = "\u20B9" + amount.toLocaleString("en-IN");
+      document.getElementById("moneyForm").style.display = "none";
+      document.getElementById("highValueWarning").style.display = "flex";
+    } else {
+      processMoney();
+    }
+  }
+
+  function confirmHighValueTransaction() {
+    document.getElementById("highValueWarning").style.display = "none";
+    document.getElementById("moneyForm").style.display = "flex";
+    processMoney();
+  }
+
+  function cancelHighValueTransaction() {
+    document.getElementById("highValueWarning").style.display = "none";
+    document.getElementById("moneyForm").style.display = "flex";
+    document.getElementById("moneyResult").style.color = "var(--red)";
+    document.getElementById("moneyResult").textContent = "\u2718 Transaction cancelled by user.";
+  }
+</script>
+
+<!-- SENSITIVE INFO FORM -->
+<div id="sensitiveForm" class="modal">
+  <div class="modal-content">
+    <h3>Share Sensitive Information</h3>
+    <textarea id="sensitiveText" placeholder="Type message you want to send"></textarea>
+    <div class="modal-buttons">
+      <button onclick="scanSensitive()">Scan Message</button>
+      <button class="btn-close" onclick="closeForms()">Close</button>
+    </div>
+    <p id="sensitiveResult"></p>
+  </div>
+</div>
+
+<!-- DELETE FILE FORM -->
+<div id="deleteForm" class="modal">
+  <div class="modal-content">
+    <h3>Secure File Deletion</h3>
+    <input id="fileName" placeholder="Enter file name">
+    <div class="modal-buttons">
+      <button onclick="deleteFile()">Delete File</button>
+      <button class="btn-close" onclick="closeForms()">Close</button>
+    </div>
+    <p id="deleteResult"></p>
+  </div>
+</div>
+
+<!-- PRIVATE FOLDER FORM -->
+<div id="folderForm" class="modal">
+  <div class="modal-content">
+    <h3>Private Folder Access</h3>
+    <input id="folderPassword" type="password" placeholder="Enter password">
+    <div class="modal-buttons">
+      <button onclick="checkFolderAccess()">Access Folder</button>
+      <button class="btn-close" onclick="closeForms()">Close</button>
+    </div>
+    <p id="folderResult"></p>
+  </div>
+</div>
+
+<!-- URL SCANNER FORM -->
+<div id="linkForm" class="modal">
+  <div class="modal-content">
+    <h3>URL Scanner</h3>
+    <input id="urlInput" placeholder="Paste URL to scan">
+    <div class="modal-buttons">
+      <button onclick="scanURL()">Scan URL</button>
+      <button class="btn-close" onclick="closeForms()">Close</button>
+    </div>
+    <p id="urlResult"></p>
+  </div>
+</div>
+
+</body>
+</html>
