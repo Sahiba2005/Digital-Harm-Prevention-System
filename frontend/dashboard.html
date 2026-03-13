@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>DHPS Security Dashboard</title>
+
+<link rel="stylesheet" href="css/dashboard.css">
+
+<script defer src="js/riskEngine.js"></script>
+<script defer src="js/behaviorMonitor.js"></script>
+<script defer src="js/fakeNewsAI.js"></script>
+
+</head>
+
+<body>
+
+<h1 class="dashboard-title">
+DHPS Security Operations Center
+</h1>
+
+
+<!-- STATS -->
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Threats</h3>
+<p id="threats">12</p>
+</div>
+
+<div class="card">
+<h3>Fake News Alerts</h3>
+<p>5</p>
+</div>
+
+<div class="card">
+<h3>Suspicious Transactions</h3>
+<p>3</p>
+</div>
+
+<div class="card">
+<h3>Data Exposure Attempts</h3>
+<p>4</p>
+</div>
+
+</div>
+
+
+<!-- RISK ENGINE -->
+
+<div class="risk-engine">
+
+<h2>Risk Intelligence Engine</h2>
+
+<p id="riskScore">Risk Score: 45</p>
+
+<div class="risk-bar">
+<div id="riskFill"></div>
+</div>
+
+</div>
+
+
+<!-- ACTION SIMULATOR -->
+
+<div class="actions">
+
+<h2>Security Action Simulator</h2>
+
+<button onclick="openMoneyForm()">Send Money</button>
+
+<button onclick="openSensitiveForm()">Share Sensitive Info</button>
+
+<button onclick="openDeleteForm()">Delete Secure File</button>
+
+<button onclick="openFolderForm()">Access Private Folder</button>
+
+<button onclick="openLinkForm()">Open Suspicious Link</button>
+
+</div>
+
+
+<!-- FAKE NEWS DETECTION -->
+
+<div class="fake-news-card">
+
+<h2>🧠 AI Fake News Detection</h2>
+
+<textarea id="newsInput"
+placeholder="Paste a news headline or article here..."></textarea>
+
+<br><br>
+
+<button onclick="checkNews()">Analyze News</button>
+
+<p id="newsResult"></p>
+
+</div>
+
+
+<!-- THREAT LOG -->
+
+<div class="log">
+
+<h2>Threat Log</h2>
+
+<table>
+
+<tr>
+<th>Time</th>
+<th>Action</th>
+<th>Risk</th>
+<th>Decision</th>
+</tr>
+
+<tbody id="logTable"></tbody>
+
+</table>
+
+</div>
+
+
+<!-- MONEY FORM -->
+
+<div id="moneyForm" class="modal">
+
+<div class="modal-content">
+
+<h3>Money Transfer</h3>
+
+<input id="recipient" placeholder="Recipient Name">
+
+<br><br>
+
+<input id="amount" type="number" placeholder="Amount">
+
+<br><br>
+
+<button onclick="processMoney()">Submit Transaction</button>
+
+<p id="moneyResult"></p>
+
+<button onclick="closeForms()">Close</button>
+
+</div>
+
+</div>
+
+
+<!-- SENSITIVE INFO FORM -->
+
+<div id="sensitiveForm" class="modal">
+
+<div class="modal-content">
+
+<h3>Share Sensitive Information</h3>
+
+<textarea id="sensitiveText"
+placeholder="Type message you want to send"></textarea>
+
+<br><br>
+
+<button onclick="scanSensitive()">Scan Message</button>
+
+<p id="sensitiveResult"></p>
+
+<button onclick="closeForms()">Close</button>
+
+</div>
+
+</div>
+
+
+<!-- DELETE FILE FORM -->
+
+<div id="deleteForm" class="modal">
+
+<div class="modal-content">
+
+<h3>Secure File Deletion</h3>
+
+<input id="fileName" placeholder="Enter file name">
+
+<br><br>
+
+<button onclick="deleteFile()">Delete File</button>
+
+<p id="deleteResult"></p>
+
+<button onclick="closeForms()">Close</button>
+
+</div>
+
+</div>
+
+
+<!-- PRIVATE FOLDER FORM -->
+
+<div id="folderForm" class="modal">
+
+<div class="modal-content">
+
+<h3>Private Folder Access</h3>
+
+<input id="folderPassword" type="password"
+placeholder="Enter password">
+
+<br><br>
+
+<button onclick="checkFolderAccess()">Access Folder</button>
+
+<p id="folderResult"></p>
+
+<button onclick="closeForms()">Close</button>
+
+</div>
+
+</div>
+
+
+<!-- URL SCANNER FORM -->
+
+<div id="linkForm" class="modal">
+
+<div class="modal-content">
+
+<h3>URL Scanner</h3>
+
+<input id="urlInput" placeholder="Paste URL">
+
+<br><br>
+
+<button onclick="scanURL()">Scan URL</button>
+
+<p id="urlResult"></p>
+
+<button onclick="closeForms()">Close</button>
+
+</div>
+
+</div>
+
+</body>
+</html>
