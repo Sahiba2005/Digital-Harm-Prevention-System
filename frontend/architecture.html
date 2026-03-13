@@ -1,13 +1,139 @@
-<h1>DHPS DevSecOps Architecture</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHPS Architecture</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .arch-page { position: relative; z-index: 1; padding: 120px 24px 80px; max-width: 900px; margin: 0 auto; }
+    .arch-title { font-family: var(--font-display); font-size: clamp(18px,3vw,30px); font-weight: 900; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-bottom: 64px; }
+    .pipeline { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .arch-step {
+      width: 100%; max-width: 560px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 32px;
+      position: relative;
+      display: flex; align-items: center; gap: 20px;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: all 0.3s;
+      animation: fade-up 0.6s both;
+    }
+    .arch-step:hover { background: var(--surface); border-color: var(--border-bright); box-shadow: 0 0 24px rgba(0,234,255,0.1); }
+    .arch-step:nth-child(1) { animation-delay: 0.1s; }
+    .arch-step:nth-child(3) { animation-delay: 0.2s; }
+    .arch-step:nth-child(5) { animation-delay: 0.3s; }
+    .arch-step:nth-child(7) { animation-delay: 0.4s; }
+    .arch-step:nth-child(9) { animation-delay: 0.5s; }
+    .arch-step:nth-child(11) { animation-delay: 0.6s; }
+    .step-num { font-family: var(--font-display); font-size: 11px; color: var(--cyan); opacity: 0.5; letter-spacing: 2px; min-width: 32px; }
+    .step-icon { font-size: 22px; }
+    .step-body { flex: 1; }
+    .step-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+    .step-desc { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.5px; }
+    .arch-arrow {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, var(--border-bright), transparent);
+      position: relative;
+    }
+    .arch-arrow::after { content: '▼'; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 8px; color: var(--border-bright); }
+    @keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    @media(max-width:600px){ .arch-step{ clip-path: none; } }
+  </style>
+</head>
+<body>
 
-Developer Code
-↓
-Git Repository
-↓
-Jenkins CI/CD
-↓
-Docker Container
-↓
-Kubernetes Cluster
-↓
-Security Monitoring Dashboard
+<div class="grid-bg"></div>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">DHPS</a>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="architecture.html">Architecture</a></li>
+  </ul>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    SYSTEM ACTIVE
+  </div>
+</nav>
+
+<div class="arch-page">
+  <h1 class="arch-title">// DHPS DevSecOps Architecture</h1>
+
+  <div class="pipeline">
+
+    <div class="arch-step">
+      <span class="step-num">01</span>
+      <span class="step-icon">&#x1F9D1;&#x200D;&#x1F4BB;</span>
+      <div class="step-body">
+        <div class="step-name">Developer Code</div>
+        <div class="step-desc">Source code authored and unit-tested locally by engineers</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow"></div>
+
+    <div class="arch-step">
+      <span class="step-num">02</span>
+      <span class="step-icon">&#x1F4E6;</span>
+      <div class="step-body">
+        <div class="step-name">Git Repository</div>
+        <div class="step-desc">Version-controlled codebase with branch protection and PR reviews</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow"></div>
+
+    <div class="arch-step">
+      <span class="step-num">03</span>
+      <span class="step-icon">&#x2699;</span>
+      <div class="step-body">
+        <div class="step-name">Jenkins CI/CD</div>
+        <div class="step-desc">Automated build, test, SAST scan, and pipeline orchestration</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow"></div>
+
+    <div class="arch-step">
+      <span class="step-num">04</span>
+      <span class="step-icon">&#x1F433;</span>
+      <div class="step-body">
+        <div class="step-name">Docker Container</div>
+        <div class="step-desc">Isolated, reproducible runtime environments for each microservice</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow"></div>
+
+    <div class="arch-step">
+      <span class="step-num">05</span>
+      <span class="step-icon">&#x2601;</span>
+      <div class="step-body">
+        <div class="step-name">Kubernetes Cluster</div>
+        <div class="step-desc">Orchestrated container deployment with auto-scaling and health checks</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow"></div>
+
+    <div class="arch-step">
+      <span class="step-num">06</span>
+      <span class="step-icon">&#x1F6E1;</span>
+      <div class="step-body">
+        <div class="step-name">Security Monitoring Dashboard</div>
+        <div class="step-desc">Real-time threat intelligence, risk scoring, and incident response</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <span class="footer-copy">&copy; 2025 Digital Harm Prevention System</span>
+  <span class="footer-ver">v2.4.1 // SECURE BUILD</span>
+</footer>
+
+</body>
+</html>

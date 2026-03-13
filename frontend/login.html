@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHPS — Secure Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+    /* ── CORNER DECORATIONS ── */
+    .corner {
+      position: fixed;
+      width: 60px; height: 60px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .corner--tl { top: 24px; left: 24px; border-top: 1px solid var(--border-bright); border-left: 1px solid var(--border-bright); }
+    .corner--tr { top: 24px; right: 24px; border-top: 1px solid var(--border-bright); border-right: 1px solid var(--border-bright); }
+    .corner--bl { bottom: 24px; left: 24px; border-bottom: 1px solid var(--border-bright); border-left: 1px solid var(--border-bright); }
+    .corner--br { bottom: 24px; right: 24px; border-bottom: 1px solid var(--border-bright); border-right: 1px solid var(--border-bright); }
+
+    /* ── GLOW ── */
+    .bg-glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,234,255,0.06) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── CARD ── */
+    .login-wrap {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      animation: fade-up 0.7s 0.2s both;
+    }
+
+    .login-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 48px 44px 44px;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+
+    /* animated top line */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer { 0%{background-position: -200% 0} 100%{background-position: 200% 0} }
+    @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── HEADER ── */
+    .login-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--cyan);
+      letter-spacing: 4px; text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .login-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--cyan); }
+
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .login-title span { color: var(--cyan); }
+
+    .login-sub {
+      font-family: var(--font-mono);
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-bottom: 36px;
+    }
+
+    /* ── FORM ── */
+    .field { margin-bottom: 20px; }
+
+    .field-label {
+      font-family: var(--font-mono);
+      font-size: 10px; color: var(--text-dim);
+      letter-spacing: 3px; text-transform: uppercase;
+      display: block; margin-bottom: 8px;
+    }
+
+    .field-input-wrap { position: relative; }
+
+    .field-input-wrap .field-icon {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--text-dim);
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px 13px 40px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 1px;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+    }
+
+    .field input::placeholder { color: var(--text-dim); letter-spacing: 1px; }
+
+    .field input:focus {
+      border-color: var(--border-bright);
+      box-shadow: 0 0 16px rgba(0,234,255,0.1);
+      background: rgba(0,234,255,0.03);
+    }
+
+    .field input:focus + .field-icon,
+    .field-input-wrap:focus-within .field-icon { color: var(--cyan); }
+
+    /* eye toggle */
+    .field-toggle {
+      position: absolute;
+      right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text-dim); font-size: 14px;
+      padding: 0; margin: 0;
+      transition: color 0.2s;
+      clip-path: none !important;
+    }
+    .field-toggle:hover { color: var(--cyan); background: none !important; box-shadow: none !important; }
+
+    /* ── OPTIONS ROW ── */
+    .field-options {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .remember-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .remember-wrap input[type=checkbox] { display: none; }
+    .custom-check {
+      width: 14px; height: 14px;
+      border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--cyan);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .remember-wrap input:checked ~ .custom-check { background: var(--cyan); color: #000; }
+    .remember-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+
+    .forgot-link { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); text-decoration: none; letter-spacing: 1px; opacity: 0.7; transition: opacity 0.2s; }
+    .forgot-link:hover { opacity: 1; }
+
+    /* ── SUBMIT ── */
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--cyan);
+      color: #000;
+      font-family: var(--font-display);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      border: none; cursor: pointer;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: all 0.25s;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+
+    .login-btn:hover { background: #fff; box-shadow: 0 0 32px rgba(0,234,255,0.4); transform: translateY(-1px); }
+    .login-btn:hover::after { transform: translateX(100%); }
+    .login-btn:active { transform: translateY(0); }
+
+    /* ── STATUS MSG ── */
+    #loginMsg {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-align: center;
+      letter-spacing: 1px;
+      min-height: 18px;
+      margin-bottom: 8px;
+      transition: color 0.3s;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 2px; }
+
+    /* ── BOTTOM LINK ── */
+    .login-footer-text {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+    .login-footer-text a { color: var(--cyan); text-decoration: none; }
+    .login-footer-text a:hover { text-decoration: underline; }
+
+    /* ── SYSTEM INFO ── */
+    .sys-info {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sys-info-item { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+    .sys-info-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 5px var(--green); margin-right: 5px; }
+
+    /* ── SCANNING ANIMATION on success ── */
+    .scan-line {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      top: 0;
+      transform: translateY(-2px);
+      opacity: 0;
+      transition: none;
+    }
+    .login-card.scanning .scan-line { animation: scan 1.2s ease-in-out; }
+
+    @keyframes scan { 0%{top:0;opacity:1} 100%{top:100%;opacity:0} }
+
+    /* error shake */
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%,60%{transform:translateX(-6px)}
+      40%,80%{transform:translateX(6px)}
+    }
+    .shake { animation: shake 0.4s ease; }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="bg-glow"></div>
+
+<!-- Corner decorations -->
+<div class="corner corner--tl"></div>
+<div class="corner corner--tr"></div>
+<div class="corner corner--bl"></div>
+<div class="corner corner--br"></div>
+
+<div class="login-wrap">
+  <div class="login-card" id="loginCard">
+    <div class="scan-line"></div>
+
+    <p class="login-eyebrow">Secure Access</p>
+    <h1 class="login-title">DHPS <span>Portal</span></h1>
+    <p class="login-sub">Authenticate to access the security dashboard</p>
+
+    <!-- FORM -->
+    <div class="field">
+      <label class="field-label" for="username">Operator ID</label>
+      <div class="field-input-wrap">
+        <span class="field-icon">&#x1F464;</span>
+        <input type="text" id="username" placeholder="Enter your operator ID" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="password">Access Key</label>
+      <div class="field-input-wrap">
+        <span class="field-icon">&#x1F510;</span>
+        <input type="password" id="password" placeholder="Enter your access key" autocomplete="current-password">
+        <button class="field-toggle" onclick="togglePwd()" id="eyeBtn" title="Toggle visibility">&#x1F441;</button>
+      </div>
+    </div>
+
+    <div class="field-options">
+      <label class="remember-wrap">
+        <input type="checkbox" id="rememberMe">
+        <span class="custom-check" id="checkDisplay"></span>
+        <span class="remember-label">Remember session</span>
+      </label>
+      <a href="#" class="forgot-link">Forgot key?</a>
+    </div>
+
+    <p id="loginMsg"></p>
+
+    <button class="login-btn" onclick="handleLogin()">
+      &#x25B6;&nbsp; Authenticate
+    </button>
+
+    <div class="divider">
+      <span class="divider-line"></span>
+      <span class="divider-text">OR</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <p class="login-footer-text">
+      New operator? <a href="#">Request access &rarr;</a>
+    </p>
+
+    <div class="sys-info">
+      <span class="sys-info-item"><span class="sys-info-dot"></span>System Online</span>
+      <span class="sys-info-item">v2.4.1 // DHPS</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── CHECKBOX TOGGLE ── */
+  const cb = document.getElementById('rememberMe');
+  const cd = document.getElementById('checkDisplay');
+  cb.addEventListener('change', () => { cd.textContent = cb.checked ? '✓' : ''; });
+
+  /* ── PASSWORD TOGGLE ── */
+  function togglePwd() {
+    const inp = document.getElementById('password');
+    const btn = document.getElementById('eyeBtn');
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  /* ── LOGIN HANDLER ── */
+  function handleLogin() {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value;
+    const msg  = document.getElementById('loginMsg');
+    const card = document.getElementById('loginCard');
+    const btn  = document.querySelector('.login-btn');
+
+    msg.style.color = '';
+    msg.textContent = '';
+
+    if (!user || !pass) {
+      msg.style.color = 'var(--orange)';
+      msg.textContent = '⚠ All fields are required.';
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 400);
+      return;
+    }
+
+    /* Demo credentials: admin / secure123 */
+    if (user === 'admin' && pass === 'secure123') {
+      msg.style.color = 'var(--green)';
+      msg.textContent = '✔ Identity verified. Redirecting...';
+      btn.textContent = 'ACCESS GRANTED';
+      btn.style.background = 'var(--green)';
+      card.classList.add('scanning');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1400);
+    } else {
+      msg.style.color = 'var(--red)';
+      msg.textContent = '✘ Invalid credentials. Access denied.';
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 400);
+    }
+  }
+
+  /* ── ENTER KEY ── */
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+
+</body>
+</html>
